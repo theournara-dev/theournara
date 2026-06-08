@@ -1,0 +1,774 @@
+// prisma/schema.prisma
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["orderByRelation", "filterJson"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// USER & AUTH
+model User {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  email        String  @unique
+  passwordHash String
+  firstName    String?
+  lastName     String?
+  phone        String?
+  avatarUrl    String?
+
+  // Relations
+  profile             Profile?
+  addresses           Address[]
+  roles               UserRole[]
+  orders              Order[]
+  cart                Cart?
+  wishlist            Wishlist?
+  reviews             Review[]
+  questions           Question[]
+  answers             Answer[]
+  loyaltyTransactions LoyaltyTransaction[]
+  referrals           Referral[]
+  skinQuizResponses   SkinQuizResponse[]
+  reviewVotes         ReviewVote[]
+  Notification        Notification[]
+
+  @@map("users")
+}
+
+model Profile {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  bio       String?
+  gender    String?
+  birthDate DateTime?
+
+  @@map("profiles")
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  line1     String
+  line2     String?
+  city      String
+  state     String
+  zipCode   String
+  country   String
+  isDefault Boolean @default(false)
+
+  orders Order[]
+
+  @@map("addresses")
+}
+
+model Role {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  name        String       @unique
+  description String?
+  permissions Permission[] @relation("RolePermissions")
+  userRoles   UserRole[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  action      String
+  resource    String
+  description String?
+  roles       Role[]  @relation("RolePermissions")
+
+  @@map("permissions")
+}
+
+model UserRole {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  userId String
+  roleId String
+  user   User   @relation(fields: [userId], references: [id])
+  role   Role   @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, roleId])
+  @@map("user_roles")
+}
+
+// PRODUCT CATALOG
+model Product {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  name         String
+  slug         String             @unique
+  description  String?
+  price        Decimal            @db.Decimal(10, 2)
+  stock        Int
+  brandId      String
+  brand        Brand              @relation(fields: [brandId], references: [id])
+  categories   CategoryProduct[]
+  variants     ProductVariant[]
+  images       ProductImage[]
+  videos       ProductVideo[]
+  reviews      Review[]
+  questions    Question[]
+  flashSales   FlashSaleProduct[]
+  offers       OfferProduct[]
+  WishlistItem WishlistItem[]
+
+  @@index([brandId])
+  @@map("products")
+}
+
+model Brand {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  name     String    @unique
+  logoUrl  String?
+  products Product[]
+
+  @@map("brands")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  name     String            @unique
+  slug     String            @unique
+  parentId String?
+  parent   Category?         @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[]        @relation("CategoryHierarchy")
+  products CategoryProduct[]
+  offers   OfferCategory[]
+
+  @@map("categories")
+}
+
+model CategoryProduct {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  categoryId String
+  productId  String
+  category   Category @relation(fields: [categoryId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
+
+  @@unique([categoryId, productId])
+  @@map("category_products")
+}
+
+model ProductVariant {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  productId       String
+  sku             String         @unique
+  name            String
+  additionalPrice Decimal        @db.Decimal(10, 2)
+  stock           Int
+  product         Product        @relation(fields: [productId], references: [id])
+  shades          ProductShade[]
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+
+  @@map("product_variants")
+}
+
+model ProductShade {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  variantId String
+  colorName String
+  hexCode   String?
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@map("product_shades")
+}
+
+model ProductImage {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  productId String
+  url       String
+  altText   String?
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("product_images")
+}
+
+model ProductVideo {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  productId String
+  url       String
+  thumbnail String?
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("product_videos")
+}
+
+// CART & WISHLIST
+model Cart {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  userId String     @unique
+  user   User       @relation(fields: [userId], references: [id])
+  items  CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  cartId    String
+  variantId String
+  quantity  Int
+  cart      Cart           @relation(fields: [cartId], references: [id])
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@map("cart_items")
+}
+
+model Wishlist {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  userId String         @unique
+  user   User           @relation(fields: [userId], references: [id])
+  items  WishlistItem[]
+
+  @@map("wishlists")
+}
+
+model WishlistItem {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  wishlistId String
+  productId  String
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
+
+  @@map("wishlist_items")
+}
+
+// ORDER MANAGEMENT
+model Order {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  userId            String
+  status            String // e.g., pending, paid, shipped, completed, cancelled
+  totalAmount       Decimal     @db.Decimal(10, 2)
+  currency          String      @default("USD")
+  paymentMethod     String
+  shippingAddressId String
+  shippingAddress   Address     @relation(fields: [shippingAddressId], references: [id])
+  user              User        @relation(fields: [userId], references: [id])
+  items             OrderItem[]
+  couponId          String?
+  coupon            Coupon?     @relation(fields: [couponId], references: [id])
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  orderId   String
+  variantId String
+  quantity  Int
+  price     Decimal        @db.Decimal(10, 2)
+  order     Order          @relation(fields: [orderId], references: [id])
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@map("order_items")
+}
+
+// REVIEWS & QUESTIONS
+model Review {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  userId    String
+  productId String
+  rating    Int // 1-5
+  comment   String?
+  user      User         @relation(fields: [userId], references: [id])
+  product   Product      @relation(fields: [productId], references: [id])
+  votes     ReviewVote[]
+
+  @@map("reviews")
+}
+
+model ReviewVote {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  reviewId String
+  userId   String
+  vote     Int // +1 or -1
+  review   Review @relation(fields: [reviewId], references: [id])
+  user     User   @relation(fields: [userId], references: [id])
+
+  @@unique([reviewId, userId])
+  @@map("review_votes")
+}
+
+model Question {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  userId    String
+  productId String
+  title     String
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+  answers   Answer[]
+
+  @@map("questions")
+}
+
+model Answer {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  questionId String
+  userId     String
+  content    String
+  question   Question @relation(fields: [questionId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@map("answers")
+}
+
+// COUPONS, OFFERS, FLASH SALES
+model Coupon {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  code          String    @unique
+  discountType  String // amount or percentage
+  discountValue Decimal   @db.Decimal(10, 2)
+  expiresAt     DateTime?
+  usageLimit    Int?
+  usedCount     Int       @default(0)
+  minOrderValue Decimal?  @db.Decimal(10, 2)
+  orders        Order[]
+
+  @@map("coupons")
+}
+
+model Offer {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  title              String
+  description        String?
+  discountPercentage Decimal         @db.Decimal(5, 2)
+  startDate          DateTime
+  endDate            DateTime
+  products           OfferProduct[]
+  categories         OfferCategory[]
+
+  @@map("offers")
+}
+
+model OfferProduct {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  offerId   String
+  productId String
+  offer     Offer   @relation(fields: [offerId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@unique([offerId, productId])
+  @@map("offer_products")
+}
+
+model OfferCategory {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  offerId    String
+  categoryId String
+  offer      Offer    @relation(fields: [offerId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([offerId, categoryId])
+  @@map("offer_categories")
+}
+
+model FlashSale {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  title              String
+  startDate          DateTime
+  endDate            DateTime
+  discountPercentage Decimal            @db.Decimal(5, 2)
+  products           FlashSaleProduct[]
+
+  @@map("flash_sales")
+}
+
+model FlashSaleProduct {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  flashSaleId   String
+  productId     String
+  discountPrice Decimal @db.Decimal(10, 2)
+  stockLimit    Int
+  soldCount     Int     @default(0)
+
+  flashSale FlashSale @relation(fields: [flashSaleId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id])
+
+  @@unique([flashSaleId, productId])
+  @@map("flash_sale_products")
+}
+
+// NOTIFICATIONS
+model Notification {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  userId  String
+  type    String // e.g., order, promotion, system
+  message String
+  isRead  Boolean @default(false)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
+
+// NEWSLETTER
+model NewsletterSubscription {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  email        String   @unique
+  subscribedAt DateTime @default(now())
+
+  @@map("newsletter_subscriptions")
+}
+
+// LOYALTY & REFERRAL
+model LoyaltyTransaction {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  userId      String
+  points      Int
+  description String?
+  user        User    @relation(fields: [userId], references: [id])
+
+  @@map("loyalty_transactions")
+}
+
+model Reward {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  title       String
+  pointsCost  Int
+  description String?
+
+  @@map("rewards")
+}
+
+model Referral {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  referrerId   String
+  refereeEmail String
+  status       String // pending, completed
+  referrer     User   @relation(fields: [referrerId], references: [id])
+
+  @@map("referrals")
+}
+
+// SKIN QUIZ
+model SkinQuizQuestion {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  question  String
+  options   SkinQuizOption[]
+  responses SkinQuizResponse[]
+
+  @@map("skin_quiz_questions")
+}
+
+model SkinQuizOption {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  questionId String
+  text       String
+  value      String // e.g., dry, oily, normal
+  question   SkinQuizQuestion   @relation(fields: [questionId], references: [id])
+  responses  SkinQuizResponse[]
+
+  @@map("skin_quiz_options")
+}
+
+model SkinQuizResponse {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  userId           String
+  questionId       String
+  selectedOptionId String
+  user             User             @relation(fields: [userId], references: [id])
+  question         SkinQuizQuestion @relation(fields: [questionId], references: [id])
+  option           SkinQuizOption   @relation(fields: [selectedOptionId], references: [id])
+
+  @@map("skin_quiz_responses")
+}
+
+// MEDIA
+model Media {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  url      String
+  mimeType String
+  size     Int // bytes
+
+  @@map("media")
+}
+
+// CAMPAIGNS
+model Campaign {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  name        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+
+  @@map("campaigns")
+}
+
+// SYSTEM SETTINGS
+model SystemSetting {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+  isDeleted Boolean  @default(false)
+
+  key   String @unique
+  value String
+
+  @@map("system_settings")
+}
+
+// AUDIT LOGS
+model AuditLog {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  action      String
+  entity      String
+  entityId    String?
+  performedBy String?
+  before      Json?
+  after       Json?
+  ipAddress   String?
+  userAgent   String?
+
+  @@map("audit_logs")
+}
