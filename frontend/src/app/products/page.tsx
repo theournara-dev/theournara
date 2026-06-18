@@ -68,8 +68,13 @@ function ProductsList() {
         await api.post('/wishlist', { productId });
         setWishlistProductIds([...wishlistProductIds, productId]);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to toggle wishlist', err);
+      if (err.response?.status === 401) {
+        alert('Your session has expired. Please log in again.');
+      } else {
+        alert(err.response?.data?.message || 'Failed to update wishlist.');
+      }
     }
   };
 
@@ -148,8 +153,8 @@ function ProductsList() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.map((product) => (
             <Card key={product.id} className="flex flex-col overflow-hidden relative group">
-              <Link href={`/products/${product.slug}`}>
-                <div className="aspect-square bg-muted relative overflow-hidden">
+              <div className="aspect-square bg-muted relative overflow-hidden">
+                <Link href={`/products/${product.slug}`} className="block w-full h-full">
                   {product.images && product.images.length > 0 ? (
                     <img 
                       src={resolveMediaUrl(product.images[0].url)} 
@@ -161,26 +166,26 @@ function ProductsList() {
                       No Image
                     </div>
                   )}
+                </Link>
 
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleToggleWishlist(product.id);
-                    }}
-                    className="absolute top-3 right-3 p-2 rounded-full bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black transition shadow-sm z-10 active:scale-95"
-                    title={wishlistProductIds.includes(product.id) ? "Remove from Wishlist" : "Add to Wishlist"}
-                  >
-                    <Heart 
-                      className={`h-4.5 w-4.5 transition-colors ${
-                        wishlistProductIds.includes(product.id) 
-                          ? 'fill-red-500 text-red-500' 
-                          : 'text-muted-foreground hover:text-red-500'
-                      }`} 
-                    />
-                  </button>
-                </div>
-              </Link>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleToggleWishlist(product.id);
+                  }}
+                  className="absolute top-3 right-3 p-2 rounded-full bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black transition shadow-sm z-10 active:scale-95"
+                  title={wishlistProductIds.includes(product.id) ? "Remove from Wishlist" : "Add to Wishlist"}
+                >
+                  <Heart 
+                    className={`h-5 w-5 transition-colors ${
+                      wishlistProductIds.includes(product.id) 
+                        ? 'fill-red-500 text-red-500' 
+                        : 'text-muted-foreground hover:text-red-500'
+                    }`} 
+                  />
+                </button>
+              </div>
               <CardHeader className="p-4 pb-2">
                 <CardTitle className="text-lg truncate">
                   <Link href={`/products/${product.slug}`} className="hover:underline">

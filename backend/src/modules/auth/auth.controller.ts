@@ -2,6 +2,7 @@
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import { AuthService } from './auth.service';
+import { EmailService } from '../email/email.service';
 import { sendSuccess, sendError } from '../../utils/response';
 import prisma from '../../prisma/client';
 
@@ -19,6 +20,9 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     });
 
     const { accessToken, refreshToken } = AuthService.generateTokens(user);
+
+    // Send welcome email (non-blocking)
+    EmailService.sendWelcomeEmail(user.email, user.firstName || 'Beauty Lover');
 
     // Set refresh token in HttpOnly cookie
     res.cookie('refresh_token', refreshToken, {
@@ -42,6 +46,9 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body;
     const user = await AuthService.validateUser(email, password);
     const { accessToken, refreshToken } = AuthService.generateTokens(user);
+
+    // Send login alert email (non-blocking)
+    EmailService.sendLoginAlert(user.email, user.firstName || 'there');
 
     // Set refresh token in HttpOnly cookie
     res.cookie('refresh_token', refreshToken, {

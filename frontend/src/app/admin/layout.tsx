@@ -47,19 +47,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   const sidebarContent = (
-    <div className="h-full flex flex-col bg-[#2d1b69] text-white">
+    <div className="h-full flex flex-col bg-[#1a1a1a] text-[#ebe9e4]">
       {/* Brand Header */}
-      <div className="flex h-16 items-center gap-2 border-b border-white/5 px-6">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-pink-500 to-pink-400 shadow-md">
-          <Sparkles className="h-4.5 w-4.5 text-white" />
-        </div>
+      <div className="flex h-16 items-center gap-2 border-b border-white/10 px-6">
         <div className="flex-1">
-          <p className="text-sm font-black tracking-tight leading-none">EcomBeauty</p>
-          <span className="text-[10px] text-white/50 font-bold mt-0.5 block">Admin Panel</span>
+          <p className="text-lg font-bold tracking-tight leading-none" style={{ letterSpacing: '-0.02em' }}>our nara</p>
+          <span className="text-[10px] text-[#888] font-medium uppercase tracking-wider mt-0.5 block">Admin Panel</span>
         </div>
         <button
           onClick={() => setMobileOpen(false)}
-          className="text-white/40 hover:text-white md:hidden"
+          className="text-[#888] hover:text-white md:hidden"
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
@@ -74,16 +71,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               key={item.path}
               href={item.path}
               onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-xs font-bold transition-all relative ${
+              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-xs font-medium transition-all relative ${
                 active
                   ? 'bg-white/10 text-white'
-                  : 'text-white/70 hover:bg-white/5 hover:text-white'
+                  : 'text-[#888] hover:bg-white/5 hover:text-white'
               }`}
             >
-              <span className={active ? 'text-pink-500' : 'text-white/50'}>{item.icon}</span>
+              <span className={active ? 'text-white' : 'text-[#888]'}>{item.icon}</span>
               <span className="flex-1">{item.label}</span>
               {active && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-1 rounded bg-pink-500" />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-1 rounded bg-[#ebe9e4]" />
               )}
             </Link>
           );
@@ -91,30 +88,30 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </nav>
 
       {/* User Information & Logouts */}
-      <div className="border-t border-white/5 p-4 space-y-2">
+      <div className="border-t border-white/10 p-4 space-y-2">
         <div className="flex items-center gap-3 px-2 py-1">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-pink-500 font-extrabold text-sm text-white">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 font-medium text-sm text-white">
             {(user?.firstName || 'A').charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-black truncate">{user?.firstName || 'Admin'} {user?.lastName || 'User'}</p>
-            <span className="text-[10px] text-white/40 font-bold truncate block">Administrator</span>
+            <p className="text-xs font-medium truncate text-white">{user?.firstName || 'Admin'} {user?.lastName || 'User'}</p>
+            <span className="text-[10px] text-[#888] font-medium truncate block">Administrator</span>
           </div>
         </div>
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-left text-xs font-bold text-white/60 hover:bg-white/5 hover:text-white transition-colors cursor-pointer"
+          className="w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-left text-xs font-medium text-[#888] hover:bg-white/5 hover:text-white transition-colors cursor-pointer"
         >
-          <LogOut className="h-4.5 w-4.5 text-white/40" />
+          <LogOut className="h-4.5 w-4.5" />
           Logout
         </button>
         
         <Link
           href="/"
-          className="w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-left text-xs font-bold text-white/60 hover:bg-white/5 hover:text-white transition-colors block"
+          className="w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-left text-xs font-medium text-[#888] hover:bg-white/5 hover:text-white transition-colors block"
         >
-          <Sparkles className="h-4.5 w-4.5 text-white/40" />
+          <LayoutDashboard className="h-4.5 w-4.5 inline-block mr-3" />
           Back to Store
         </Link>
       </div>
@@ -123,16 +120,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!authorized) {
     return (
-      <div className="min-h-screen bg-[#f4f3f8] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#2d1b69]" />
+      <div className="min-h-screen bg-[#fafaf8] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[#1a1a1a]" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f4f3f8] flex">
+    <div className="min-h-screen bg-[#fafaf8] flex font-sans">
       {/* Desktop Sidebar (Fixed) */}
-      <aside className="hidden md:block w-64 fixed inset-y-0 left-0 z-20 border-r border-gray-100 shadow-xl shadow-[#2d1b69]/5">
+      <aside className="hidden md:block w-64 fixed inset-y-0 left-0 z-20 border-r border-[#ebe9e4] shadow-xl">
         {sidebarContent}
       </aside>
 
@@ -140,7 +137,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {mobileOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden">
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <div className="relative w-64 flex flex-col bg-[#2d1b69] animate-in slide-in-from-left duration-200">
+          <div className="relative w-64 flex flex-col bg-[#1a1a1a] animate-in slide-in-from-left duration-200">
             {sidebarContent}
           </div>
         </div>
@@ -150,14 +147,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex-1 md:pl-64 flex flex-col min-w-0">
         
         {/* Mobile Top Bar */}
-        <header className="sticky top-0 z-10 flex h-16 bg-white border-b border-gray-100 items-center px-4 md:hidden">
+        <header className="sticky top-0 z-10 flex h-16 bg-[#fafaf8] border-b border-[#ebe9e4] items-center px-4 md:hidden">
           <button
             onClick={() => setMobileOpen(true)}
-            className="text-[#2d1b69] hover:bg-gray-100 p-2 rounded-lg"
+            className="text-[#1a1a1a] hover:bg-[#ebe9e4] p-2 rounded-lg transition-colors"
           >
             <MenuIcon className="h-5 w-5" />
           </button>
-          <span className="text-sm font-extrabold text-[#2d1b69] ml-2">EcomBeauty Admin Panel</span>
+          <span className="text-lg font-bold text-[#1a1a1a] ml-2 tracking-tight">our nara</span>
         </header>
 
         {/* Inner Page View */}

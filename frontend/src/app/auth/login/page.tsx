@@ -1,44 +1,83 @@
 import { Metadata } from 'next';
 import LoginForm from './LoginForm';
-import { Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Welcome Back - EcomBeauty',
-  description: 'Sign in to discover premium beauty',
+  title: 'Sign In — our nara',
+  description: 'Sign in to your our nara account to shop premium K-Beauty skincare.',
 };
 
 export default function LoginPage() {
   return (
-    <div className="min-h-[85vh] w-full bg-gradient-to-br from-[#eee8ff] via-[#f8f7ff] to-[#ffe8e8] flex items-center justify-center py-10 px-4 sm:px-6">
-      
-      {/* Outer Card Wrapper */}
-      <div className="w-full max-w-md bg-white/95 border border-purple-950/5 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-md animate-in zoom-in-95 duration-200">
-        
-        {/* Logo and Description */}
-        <div className="text-center mb-6">
-          <div className="mx-auto h-14 w-14 rounded-full bg-gradient-to-tr from-purple-950 to-pink-500 flex items-center justify-center mb-3.5 shadow-md">
-            <Sparkles className="h-6 w-6 text-white" />
-          </div>
-          <h1 className="text-2xl font-black text-gray-900 leading-tight">Welcome Back</h1>
-          <p className="text-xs text-gray-400 mt-1">Sign in to discover premium beauty</p>
+    <div
+      className="min-h-screen w-full flex"
+      style={{ backgroundColor: '#fafaf8', fontFamily: 'Inter, sans-serif' }}
+    >
+      {/* Left panel — decorative (hidden on mobile) */}
+      <div
+        className="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col justify-between p-12"
+        style={{ backgroundColor: '#dde5ef' }}
+      >
+        {/* Background image */}
+        <img
+          src="/hero_slide_1.png"
+          alt="our nara skincare"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+          style={{ opacity: 0.85 }}
+        />
+        {/* Gradient overlay */}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to top, rgba(20,20,20,0.55) 0%, transparent 55%)' }}
+        />
+
+        {/* Logo top-left */}
+        <div className="relative z-10 flex items-center gap-2">
+          <svg width="30" height="30" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="32" cy="38" rx="18" ry="11" transform="rotate(-35 32 38)" fill="#fff" opacity="0.9"/>
+            <ellipse cx="48" cy="38" rx="18" ry="11" transform="rotate(35 48 38)" fill="#e8e0d0" opacity="0.85"/>
+            <ellipse cx="40" cy="38" rx="7" ry="9" fill="#fff" opacity="0.6"/>
+          </svg>
+          <span style={{ fontFamily: 'Georgia, serif', fontSize: '16px', letterSpacing: '0.14em', color: '#fff' }}>
+            our nara
+          </span>
         </div>
 
-        {/* Tabbed Auth Forms */}
-        <LoginForm />
+        {/* Bottom quote */}
+        <div className="relative z-10">
+          <p className="text-white text-2xl font-bold leading-snug mb-2">
+            Nature in every<br />drop of care.
+          </p>
+          <p className="text-white/70 text-sm">
+            Premium K-Beauty skincare, curated for radiant skin.
+          </p>
+        </div>
+      </div>
 
-        {/* Footer info */}
-        <p className="text-center text-[10px] text-gray-400 mt-8 leading-relaxed px-4">
-          By continuing, you agree to our{' '}
-          <a href="/terms" className="font-bold text-gray-600 hover:underline">
-            Terms of Service
-          </a>{' '}
-          and{' '}
-          <a href="/privacy" className="font-bold text-gray-600 hover:underline">
-            Privacy Policy
-          </a>
-          .
-        </p>
+      {/* Right panel — auth forms */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 lg:px-16">
 
+        {/* Mobile logo */}
+        <div className="lg:hidden flex items-center gap-2 mb-10">
+          <svg width="28" height="28" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="32" cy="38" rx="18" ry="11" transform="rotate(-35 32 38)" fill="#C8B89A" opacity="0.9"/>
+            <ellipse cx="48" cy="38" rx="18" ry="11" transform="rotate(35 48 38)" fill="#B8A88A" opacity="0.85"/>
+            <ellipse cx="40" cy="38" rx="7" ry="9" fill="#D4C4A8" opacity="0.6"/>
+          </svg>
+          <span style={{ fontFamily: 'Georgia, serif', fontSize: '16px', letterSpacing: '0.14em', color: '#1a1a1a' }}>
+            our nara
+          </span>
+        </div>
+
+        <div className="w-full max-w-sm">
+          <LoginForm />
+
+          <p className="text-center text-[11px] text-gray-400 mt-8 leading-relaxed">
+            By continuing, you agree to our{' '}
+            <a href="/terms" className="text-gray-600 hover:underline">Terms of Service</a>
+            {' '}and{' '}
+            <a href="/privacy" className="text-gray-600 hover:underline">Privacy Policy</a>.
+          </p>
+        </div>
       </div>
     </div>
   );

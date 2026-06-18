@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../../middleware/authenticate';
 import prisma from '../../prisma/client';
 import { sendSuccess, sendError } from '../../utils/response';
+import { razorpayService } from '../payments/razorpay.service';
 
 export async function placeOrder(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   try {
@@ -247,6 +248,39 @@ export async function updateOrderStatus(req: Request, res: Response, next: NextF
     });
 
     return sendSuccess(res, updated, 'Order status updated successfully');
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function createRazorpayOrder(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  try {
+    const { orderId } = req.body;
+    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    if (!order) return sendError(res, [{ message: 'Order not found' }], 'Not found', 404);
+
+    const rzpOrder = await razorpayService.createOrder(Number(order.totalAmount), order.id);
+    return sendSuccess(res, rzpOrder, 'Razorpay order created');
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function verifyRazorpayPayment(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  try {
+    const { orderId, razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+    
+    const isValid = razorpayService.verifyPaymentSignature(razorpay_order_id, razorpay_payment_id, razorpay_signature);
+    if (!isValid) {
+      return sendError(res, [{ message: 'Invalid payment signature' }], 'Payment verification failed', 400);
+    }
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: orderId },
+      data: { status: 'paid' }
+    });
+
+    return sendSuccess(res, updatedOrder, 'Payment verified successfully');
   } catch (error) {
     next(error);
   }
