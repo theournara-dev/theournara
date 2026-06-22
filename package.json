@@ -15,5 +15,8 @@
     "lint:backend": "npm --workspace=backend run lint",
     "lint:frontend": "npm --workspace=frontend run lint",
     "check": "npm run build:backend && npm run type-check"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0"
   }
 }

@@ -17,6 +17,8 @@ const logger_1 = __importDefault(require("./utils/logger"));
 const app = (0, express_1.default)();
 // Serve static files
 app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../uploads')));
+// Trust reverse proxy headers in hosted environments
+app.set('trust proxy', true);
 // Middleware
 app.use((0, cors_1.default)({ origin: 'http://localhost:3000', credentials: true })); // Adjust origin in production
 app.use((0, helmet_1.default)());
