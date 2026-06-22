@@ -11,7 +11,10 @@ import errorHandler from './middleware/errorHandler';
 import logger from './utils/logger';
 
 const app: Application = express();
-
+const allowedOrigins = [
+  'http://localhost:3000',
+  process.env.FRONTEND_URL,
+].filter(Boolean) as string[];
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
@@ -19,7 +22,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.set('trust proxy', true);
 
 // Middleware
-app.use(cors({ origin: 'https://theournara-backend.vercel.app', credentials: true })); // Adjust origin in production
+app.use(cors({ origin: allowedOrigins, credentials: true, }));
 app.use(helmet());
 app.use(compression());
 app.use(express.json());
