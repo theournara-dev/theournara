@@ -19,7 +19,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.set('trust proxy', true);
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:3000', credentials: true })); // Adjust origin in production
+app.use(cors({ origin: 'https://theournara-backend.vercel.app', credentials: true })); // Adjust origin in production
 app.use(helmet());
 app.use(compression());
 app.use(express.json());
