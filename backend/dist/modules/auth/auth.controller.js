@@ -11,6 +11,7 @@ exports.listUsers = listUsers;
 exports.updateUserRole = updateUserRole;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const auth_service_1 = require("./auth.service");
+const email_service_1 = require("../email/email.service");
 const response_1 = require("../../utils/response");
 const client_1 = __importDefault(require("../../prisma/client"));
 async function register(req, res, next) {
@@ -25,6 +26,8 @@ async function register(req, res, next) {
             phone,
         });
         const { accessToken, refreshToken } = auth_service_1.AuthService.generateTokens(user);
+        // Send welcome email (non-blocking)
+        email_service_1.EmailService.sendWelcomeEmail(user.email, user.firstName || 'Beauty Lover');
         // Set refresh token in HttpOnly cookie
         res.cookie('refresh_token', refreshToken, {
             httpOnly: true,
@@ -46,6 +49,8 @@ async function login(req, res, next) {
         const { email, password } = req.body;
         const user = await auth_service_1.AuthService.validateUser(email, password);
         const { accessToken, refreshToken } = auth_service_1.AuthService.generateTokens(user);
+        // Send login alert email (non-blocking)
+        email_service_1.EmailService.sendLoginAlert(user.email, user.firstName || 'there');
         // Set refresh token in HttpOnly cookie
         res.cookie('refresh_token', refreshToken, {
             httpOnly: true,

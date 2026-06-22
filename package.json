@@ -1,0 +1,19 @@
+{
+  "name": "theournara",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "sh -c \"npm run dev:backend & npm run dev:frontend & wait\"",
+    "dev:backend": "npm --workspace=backend run dev",
+    "dev:frontend": "npm --workspace=frontend run dev",
+    "build:backend": "npm --workspace=backend run build",
+    "build:frontend": "npm --workspace=frontend run build",
+    "type-check": "npm --workspace=frontend run type-check",
+    "lint:backend": "npm --workspace=backend run lint",
+    "lint:frontend": "npm --workspace=frontend run lint",
+    "check": "npm run build:backend && npm run type-check"
+  }
+}

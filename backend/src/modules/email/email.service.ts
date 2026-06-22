@@ -180,7 +180,7 @@ export class EmailService {
       await client.emails.send({
         from: FROM_EMAIL,
         to,
-        reply_to: 'theournara@gmail.com',
+        replyTo: 'theournara@gmail.com',
         subject: `Welcome to our nara, ${firstName}! 🌿`,
         html: welcomeTemplate(firstName),
       });
@@ -206,7 +206,7 @@ export class EmailService {
       await client.emails.send({
         from: FROM_EMAIL,
         to,
-        reply_to: 'theournara@gmail.com',
+        replyTo: 'theournara@gmail.com',
         subject: 'New sign-in to your our nara account',
         html: loginAlertTemplate(firstName, loginTime, to),
       });

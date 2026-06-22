@@ -15,6 +15,9 @@ const app: Application = express();
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
+// Trust reverse proxy headers in hosted environments
+app.set('trust proxy', true);
+
 // Middleware
 app.use(cors({ origin: 'http://localhost:3000', credentials: true })); // Adjust origin in production
 app.use(helmet());

@@ -13,6 +13,9 @@ router.use(authenticate_1.authenticate);
 router.post('/', orders_controller_1.placeOrder);
 router.get('/', orders_controller_1.getOrders);
 router.get('/:id', orders_controller_1.getOrderById);
+// Payment routes
+router.post('/razorpay/create', orders_controller_1.createRazorpayOrder);
+router.post('/razorpay/verify', orders_controller_1.verifyRazorpayPayment);
 // Admin-only routes
 router.get('/admin/all', (0, authorize_1.authorize)(['Admin']), orders_controller_1.listAllOrders);
 router.put('/:id/status', (0, authorize_1.authorize)(['Admin']), orders_controller_1.updateOrderStatus);

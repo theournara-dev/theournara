@@ -8,8 +8,11 @@ exports.getOrders = getOrders;
 exports.getOrderById = getOrderById;
 exports.listAllOrders = listAllOrders;
 exports.updateOrderStatus = updateOrderStatus;
+exports.createRazorpayOrder = createRazorpayOrder;
+exports.verifyRazorpayPayment = verifyRazorpayPayment;
 const client_1 = __importDefault(require("../../prisma/client"));
 const response_1 = require("../../utils/response");
+const razorpay_service_1 = require("../payments/razorpay.service");
 async function placeOrder(req, res, next) {
     try {
         const userId = req.user.id;
@@ -227,6 +230,36 @@ async function updateOrderStatus(req, res, next) {
             data: { status }
         });
         return (0, response_1.sendSuccess)(res, updated, 'Order status updated successfully');
+    }
+    catch (error) {
+        next(error);
+    }
+}
+async function createRazorpayOrder(req, res, next) {
+    try {
+        const { orderId } = req.body;
+        const order = await client_1.default.order.findUnique({ where: { id: orderId } });
+        if (!order)
+            return (0, response_1.sendError)(res, [{ message: 'Order not found' }], 'Not found', 404);
+        const rzpOrder = await razorpay_service_1.razorpayService.createOrder(Number(order.totalAmount), order.id);
+        return (0, response_1.sendSuccess)(res, rzpOrder, 'Razorpay order created');
+    }
+    catch (error) {
+        next(error);
+    }
+}
+async function verifyRazorpayPayment(req, res, next) {
+    try {
+        const { orderId, razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+        const isValid = razorpay_service_1.razorpayService.verifyPaymentSignature(razorpay_order_id, razorpay_payment_id, razorpay_signature);
+        if (!isValid) {
+            return (0, response_1.sendError)(res, [{ message: 'Invalid payment signature' }], 'Payment verification failed', 400);
+        }
+        const updatedOrder = await client_1.default.order.update({
+            where: { id: orderId },
+            data: { status: 'paid' }
+        });
+        return (0, response_1.sendSuccess)(res, updatedOrder, 'Payment verified successfully');
     }
     catch (error) {
         next(error);

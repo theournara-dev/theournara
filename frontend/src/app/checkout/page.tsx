@@ -189,7 +189,7 @@ export default function CheckoutPage() {
               ) : (
                 <div className="space-y-3">
                   {addresses.map((addr) => (
-                    <label key={addr.id} className={\`flex items-start p-4 rounded-xl border cursor-pointer transition-colors \${selectedAddress === addr.id ? 'border-[#1a1a1a] bg-[#fafaf8]' : 'border-[#ebe9e4] hover:bg-[#fafaf8]'}\`}>
+                    <label key={addr.id} className={`flex items-start p-4 rounded-xl border cursor-pointer transition-colors ${selectedAddress === addr.id ? 'border-[#1a1a1a] bg-[#fafaf8]' : 'border-[#ebe9e4] hover:bg-[#fafaf8]'}`}>
                       <input 
                         type="radio" 
                         name="address" 
@@ -233,7 +233,7 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-[#555]">
                 <span>Shipping</span>
-                <span className="font-mono text-[#1a1a1a]">{shipping === 0 ? 'Free' : \`₹\${shipping}\`}</span>
+                <span className="font-mono text-[#1a1a1a]">{shipping === 0 ? 'Free' : `₹${shipping}`}</span>
               </div>
               
               <div className="border-t border-[#ebe9e4] pt-4 mt-4 flex justify-between items-center">
@@ -248,7 +248,7 @@ export default function CheckoutPage() {
               className="w-full mt-8 bg-[#1a1a1a] text-white py-4 rounded-full font-semibold flex items-center justify-center gap-2 hover:bg-black transition-colors disabled:opacity-50"
             >
               {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShieldCheck className="w-5 h-5" />}
-              {isProcessing ? 'Processing...' : \`Pay ₹\${total}\`}
+              {isProcessing ? 'Processing...' : `Pay ₹${total}`}
             </button>
             
             <p className="text-xs text-center text-[#888] mt-4 flex items-center justify-center gap-1">

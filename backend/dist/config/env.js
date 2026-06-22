@@ -15,6 +15,9 @@ const config = {
     jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || 'superrefreshsecret',
     jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
     emailApiKey: process.env.EMAIL_API_KEY || '',
+    resendApiKey: process.env.RESEND_API_KEY || '',
+    razorpayKeyId: process.env.RAZORPAY_KEY_ID || '',
+    razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET || '',
 };
 exports.default = config;
 //# sourceMappingURL=env.js.map
